@@ -1,0 +1,82 @@
+[package]
+name = "klee-examples"
+version = "0.1.0"
+authors = ["pln <Per Lindgren>"]
+edition = "2018"
+
+[dependencies]
+panic-halt = "0.2.0"
+
+vcell = "0.1.2"
+volatile-register = "0.2.0"
+
+[dependencies.cortex-m-rt]
+version = "0.6.11"
+optional = true
+
+[dependencies.lm3s6965] 
+version = "0.1.3"
+optional = true
+
+[dependencies.stm32f4] 
+version = "0.9.0"
+features = ["stm32f401", "rt"]
+optional = true
+
+[dependencies.cortex-m-semihosting]
+version = "0.3.5"
+optional = true
+
+[dependencies.panic-klee]
+git = "https://gitlab.henriktjader.com/pln/panic-klee.git"
+version = "0.1.0"
+
+[dependencies.klee-sys]
+git = "https://gitlab.henriktjader.com/pln/klee-sys.git"
+# path = "../klee-sys"
+version = "0.1.0"
+#features = ["inline-asm"]
+
+# [dependencies.cortex-m-rtfm]
+# path = "../cortex-m-rtpro"
+# optional = true
+
+[dependencies.cortex-m]
+version = "0.6.1"
+optional = true
+
+[patch.crates-io]
+vcell = { git = "https://github.com/perlindgren/vcell.git", branch = "trustit" }
+#vcell = { path = "../vcell" }
+
+cortex-m = { git = "https://github.com/perlindgren/cortex-m.git", branch = "trustit" }
+#cortex-m = { path = "../cortex-m" }
+
+cortex-m-rt = { git = "https://github.com/perlindgren/cortex-m-rt.git", branch = "trustit" }
+# cortex-m-rt = { path = "../cortex-m-rt" }
+
+[features] 
+# default = ["f4"] # uncomment to enable as default feature
+klee-analysis = [ 
+     "klee-sys/klee-analysis",
+     "vcell/klee-analysis",
+     "cortex-m/klee-analysis", 
+     "cortex-m-rt/klee-analysis" 
+]
+klee-replay = [ "klee-sys/klee-replay"]
+inline-asm = ["cortex-m/inline-asm", "klee-sys/inline-asm"]
+# rtpro = [ "cortex-m-rtfm/klee-analysis", "cortex-m-rt/rtpro", "lm3s6965" ]
+f4 = ["stm32f4/stm32f401", "stm32f4/rt", "cortex-m-semihosting", "cortex-m-rt", "cortex-m"]
+
+[profile.dev]
+panic = "abort"
+incremental = false # needed due to bug in rust toolchain
+lto = true
+# codegen-units = 1 # used to be required due to bug in rust toolchain
+
+[profile.release]
+panic = "abort"
+debug = true        # better debugging
+incremental = false # better optimization
+lto = true          # better optimization
+codegen-units = 1   # better optimization
